@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Pretty Saloon{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Settings</h1>
+    <p class="text-gray-600 mt-2">Configure system settings and integrations</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- WhatsApp Configuration -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">
+            <i class="fab fa-whatsapp text-green-600 mr-2"></i>WhatsApp Integration
+        </h2>
+        <p class="text-gray-600 mb-4">Customers can book appointments directly via WhatsApp (7879501625)</p>
+        
+        <div class="mb-4 p-4 bg-green-50 rounded-md border border-green-200">
+            <h3 class="font-semibold text-green-800 mb-2">✅ WhatsApp Appointment Booking Active</h3>
+            <p class="text-sm text-green-700 mb-2">Customers can send messages to: <strong>7879501625</strong></p>
+            <p class="text-sm text-green-700">System will guide them step-by-step to book appointments.</p>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Salon WhatsApp Number</label>
+            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50" 
+                   value="7879501625" readonly>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Webhook URL</label>
+            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50" 
+                   value="https://your-domain.com/webhook/whatsapp" readonly>
+            <p class="text-xs text-gray-500 mt-1">Set this in your WhatsApp API provider</p>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2">Verify Token</label>
+            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50" 
+                   value="salon_verify_token" readonly>
+        </div>
+        
+        <div class="bg-blue-50 p-4 rounded-md border border-blue-200 mb-4">
+            <h4 class="font-semibold text-blue-800 mb-2">📋 Setup Instructions:</h4>
+            <ol class="text-sm text-blue-700 list-decimal list-inside space-y-1">
+                <li>Create <code class="bg-blue-100 px-1 rounded">.env</code> file in project root</li>
+                <li>Add: <code class="bg-blue-100 px-1 rounded">WHATSAPP_API_URL=...</code></li>
+                <li>Add: <code class="bg-blue-100 px-1 rounded">WHATSAPP_API_KEY=...</code></li>
+                <li>Configure webhook in your WhatsApp API provider</li>
+                <li>See <code class="bg-blue-100 px-1 rounded">WHATSAPP_GUIDE.md</code> for details</li>
+            </ol>
+        </div>
+        
+        <div class="bg-yellow-50 p-4 rounded-md border border-yellow-200">
+            <p class="text-sm text-yellow-800">
+                <strong>Note:</strong> Without API setup, messages will be printed to console for testing. 
+                This is fine for development/testing purposes.
+            </p>
+        </div>
+    </div>
+    
+    <!-- Email Configuration -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">
+            <i class="fas fa-envelope text-blue-600 mr-2"></i>Email Configuration
+        </h2>
+        <p class="text-gray-600 mb-4">Configure SMTP settings for email notifications</p>
+        <form>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">SMTP Server</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md" 
+                       placeholder="smtp.gmail.com" disabled>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-md" 
+                       placeholder="your@email.com" disabled>
+            </div>
+            <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700" disabled>
+                Save Configuration
+            </button>
+            <p class="text-xs text-gray-500 mt-2">Note: Configure via environment variables in production</p>
+        </form>
+    </div>
+    
+    <!-- System Information -->
+    <div class="bg-white p-6 rounded-lg shadow-md lg:col-span-2">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">
+            <i class="fas fa-info-circle text-purple-600 mr-2"></i>System Information
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <p class="text-sm text-gray-600">Version</p>
+                <p class="font-semibold">1.0.0</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Database</p>
+                <p class="font-semibold">SQLite</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Framework</p>
+                <p class="font-semibold">Flask</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

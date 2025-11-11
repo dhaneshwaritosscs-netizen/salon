@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Pretty Saloon{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">{{ title }}</h1>
+    
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            {% if service %}
+            <input type="hidden" name="service_id" value="{{ service.id }}">
+            {% endif %}
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">{{ form.name.label }}</label>
+                {{ form.name(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500") }}
+                {% if form.name.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.name.errors[0] }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">{{ form.description.label }}</label>
+                {{ form.description(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500", rows="3") }}
+                {% if form.description.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.description.errors[0] }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">{{ form.price.label }}</label>
+                    {{ form.price(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500") }}
+                    {% if form.price.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.price.errors[0] }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">{{ form.duration.label }}</label>
+                    {{ form.duration(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500") }}
+                    {% if form.duration.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.duration.errors[0] }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="flex gap-4">
+                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
+                    Save
+                </button>
+                <a href="{{ url_for('services') }}" class="bg-gray-400 text-white px-6 py-2 rounded-md hover:bg-gray-500">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

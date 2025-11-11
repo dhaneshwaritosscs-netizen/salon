@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Pretty Saloon{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">{{ title }}</h1>
+    
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">{{ form.customer_id.label }}</label>
+                {{ form.customer_id(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500") }}
+                {% if form.customer_id.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.customer_id.errors[0] }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">{{ form.staff_id.label }}</label>
+                {{ form.staff_id(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500") }}
+                {% if form.staff_id.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.staff_id.errors[0] }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">{{ form.appointment_date.label }}</label>
+                <input type="datetime-local" name="appointment_date" id="appointment_date" 
+                       value="{% if form.appointment_date.data %}{{ form.appointment_date.data.strftime('%Y-%m-%dT%H:%M') }}{% endif %}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                       required>
+                {% if form.appointment_date.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.appointment_date.errors[0] }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">{{ form.service_ids.label }}</label>
+                {{ form.service_ids(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500", size="5") }}
+                <p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple services</p>
+                {% if form.service_ids.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.service_ids.errors[0] }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2">{{ form.notes.label }}</label>
+                {{ form.notes(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500", rows="3") }}
+                {% if form.notes.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.notes.errors[0] }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="flex gap-4">
+                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
+                    Save
+                </button>
+                <a href="{{ url_for('appointments') }}" class="bg-gray-400 text-white px-6 py-2 rounded-md hover:bg-gray-500">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+

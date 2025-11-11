@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Customers - Pretty Saloon{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Customers</h1>
+    <a href="{{ url_for('add_customer') }}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+        <i class="fas fa-plus mr-2"></i>Add Customer
+    </a>
+</div>
+
+<!-- Search -->
+<form method="GET" action="{{ url_for('customers') }}" class="mb-6" onsubmit="return true;">
+    <div class="flex gap-2">
+        <input type="text" id="customerSearch" name="search" value="{{ search }}" placeholder="Search by name, mobile, or email..." 
+               class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <button type="submit" class="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700">
+            <i class="fas fa-search mr-2"></i>Search
+        </button>
+        {% if search %}
+        <a href="{{ url_for('customers') }}" class="bg-gray-400 text-white px-6 py-2 rounded-md hover:bg-gray-500">
+            Clear
+        </a>
+        {% endif %}
+    </div>
+</form>
+
+<!-- Customers Table -->
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mobile</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% if customers %}
+                {% for customer in customers %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">{{ customer.name }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">{{ customer.mobile }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">{{ customer.email or 'N/A' }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="{{ url_for('customer_detail', id=customer.id) }}" class="text-blue-600 hover:text-blue-900">
+                            <i class="fas fa-eye mr-1"></i>View
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+                        No customers found. <a href="{{ url_for('add_customer') }}" class="text-blue-600 hover:underline">Add one now</a>
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+// Client-side live filtering so only matches are visible as you type
+(function() {
+    const input = document.getElementById('customerSearch');
+    if (!input) return;
+    const tableBody = document.querySelector('table tbody');
+    if (!tableBody) return;
+
+    function filterRows() {
+        const q = (input.value || '').toLowerCase().trim();
+        const rows = tableBody.querySelectorAll('tr');
+        if (!rows.length) return;
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length < 3) return;
+            const name = cells[0].textContent.toLowerCase();
+            const mobile = cells[1].textContent.toLowerCase();
+            const email = cells[2].textContent.toLowerCase();
+            const match = !q || name.includes(q) || mobile.includes(q) || email.includes(q);
+            row.style.display = match ? '' : 'none';
+        });
+    }
+
+    input.addEventListener('input', filterRows);
+    // Run once on load so results reflect current query
+    filterRows();
+})();
+</script>
+{% endblock %}
+

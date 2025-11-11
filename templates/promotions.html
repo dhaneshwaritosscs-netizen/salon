@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Promotions - Pretty Saloon{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Promotions & Marketing</h1>
+    {% if current_user.role in ['admin', 'manager'] %}
+    <a href="{{ url_for('add_promotion') }}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+        <i class="fas fa-plus mr-2"></i>Create Promotion
+    </a>
+    {% endif %}
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% if promotions %}
+        {% for promotion in promotions %}
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-xl font-bold text-gray-800">{{ promotion.title }}</h3>
+                <span class="px-2 py-1 text-xs rounded {% if promotion.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                    {% if promotion.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+            </div>
+            <p class="text-gray-600 mb-4">{{ promotion.description }}</p>
+            <div class="mb-4">
+                <p class="text-sm text-gray-600">Discount: 
+                    <span class="font-bold text-green-600">
+                        {% if promotion.discount_type == 'percentage' %}
+                            {{ promotion.discount_value }}%
+                        {% else %}
+                            ₹{{ "%.2f"|format(promotion.discount_value) }}
+                        {% endif %}
+                    </span>
+                </p>
+                <p class="text-sm text-gray-600">Period: {{ promotion.start_date.strftime('%Y-%m-%d') }} to {{ promotion.end_date.strftime('%Y-%m-%d') }}</p>
+                <p class="text-sm text-gray-600">Target: {{ promotion.target_audience.replace('_', ' ').title() }}</p>
+            </div>
+            {% if current_user.role in ['admin', 'manager'] and promotion.is_active %}
+            <form method="POST" action="{{ url_for('send_promotion', id=promotion.id) }}" class="mt-4">
+                <div class="mb-2">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="send_via" value="whatsapp" class="mr-2">
+                        <span class="text-sm">WhatsApp</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="send_via" value="email" class="mr-2">
+                        <span class="text-sm">Email</span>
+                    </label>
+                </div>
+                <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-sm">
+                    <i class="fas fa-paper-plane mr-2"></i>Send Campaign
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-span-full text-center text-gray-500 py-8">
+            No promotions found. <a href="{{ url_for('add_promotion') }}" class="text-blue-600 hover:underline">Create one now</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+

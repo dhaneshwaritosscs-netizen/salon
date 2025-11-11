@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}WhatsApp Test - Pretty Saloon{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">WhatsApp Booking Test</h1>
+        <p class="text-gray-600 mt-2">Test WhatsApp appointment booking conversation flow</p>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6">
+        <!-- Chat Interface -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Phone Number</label>
+                <input type="text" id="phoneInput" value="1245343453" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                       placeholder="Enter phone number">
+            </div>
+
+            <!-- Chat Messages -->
+            <div id="chatMessages" class="h-96 overflow-y-auto border border-gray-200 rounded-md p-4 mb-4 bg-gray-50">
+                <div class="text-center text-gray-500 text-sm py-4">
+                    Conversation will appear here...
+                </div>
+            </div>
+
+            <!-- Message Input -->
+            <div class="flex gap-2">
+                <input type="text" id="messageInput" 
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                       placeholder="Type your message..." 
+                       onkeypress="if(event.key === 'Enter') sendMessage()">
+                <button onclick="sendMessage()" 
+                        class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700">
+                    <i class="fab fa-whatsapp mr-2"></i>Send
+                </button>
+            </div>
+
+            <div class="mt-4 flex gap-2">
+                <button onclick="resetConversation()" 
+                        class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 text-sm">
+                    <i class="fas fa-redo mr-2"></i>Reset
+                </button>
+                <button onclick="quickTest()" 
+                        class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 text-sm">
+                    <i class="fas fa-bolt mr-2"></i>Quick Test
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let conversationHistory = [];
+
+function addMessage(message, isUser = false) {
+    const chatMessages = document.getElementById('chatMessages');
+    
+    // Clear placeholder
+    if (chatMessages.children.length === 1 && chatMessages.children[0].textContent.includes('Conversation')) {
+        chatMessages.innerHTML = '';
+    }
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `mb-4 ${isUser ? 'text-right' : 'text-left'}`;
+    
+    const bubble = document.createElement('div');
+    bubble.className = `inline-block max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+        isUser 
+            ? 'bg-green-500 text-white' 
+            : 'bg-white text-gray-800 border border-gray-200'
+    }`;
+    
+    // Format message (preserve line breaks)
+    const formattedMessage = message.replace(/\n/g, '<br>');
+    bubble.innerHTML = formattedMessage;
+    
+    messageDiv.appendChild(bubble);
+    chatMessages.appendChild(messageDiv);
+    
+    // Scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    conversationHistory.push({message, isUser});
+}
+
+function sendMessage() {
+    const messageInput = document.getElementById('messageInput');
+    const phoneInput = document.getElementById('phoneInput');
+    const message = messageInput.value.trim();
+    const phone = phoneInput.value.trim();
+
+    if (!message || !phone) {
+        alert('Please enter both phone number and message');
+        return;
+    }
+
+    // Add user message to chat
+    addMessage(message, true);
+    messageInput.value = '';
+
+    // Send to server
+    fetch('/webhook/whatsapp/test', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            phone: phone,
+            message: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success' && data.response) {
+            addMessage(data.response, false);
+        } else if (data.error) {
+            addMessage('Error: ' + data.error, false);
+        } else {
+            addMessage('No response received', false);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        addMessage('Error sending message: ' + error.message, false);
+    });
+}
+
+function resetConversation() {
+    if (confirm('Reset conversation? This will clear the chat history.')) {
+        document.getElementById('chatMessages').innerHTML = 
+            '<div class="text-center text-gray-500 text-sm py-4">Conversation will appear here...</div>';
+        conversationHistory = [];
+    }
+}
+
+async function quickTest() {
+    const phoneInput = document.getElementById('phoneInput');
+    const phone = phoneInput.value.trim() || '1245343453';
+    phoneInput.value = phone;
+
+    if (!confirm('This will automatically send multiple messages to test the booking flow. Continue?')) {
+        return;
+    }
+
+    // Get tomorrow's date
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dateStr = tomorrow.toLocaleDateString('en-GB').replace(/\//g, '-');
+
+    const messages = [
+        'Hi',
+        'Test Customer',
+        phone.replace(/^91/, '').substring(0, 10),
+        '1', // Staff
+        dateStr, // Date
+        '14:30', // Time
+        '1', // Service
+        'no', // Notes
+        'yes' // Confirm
+    ];
+
+    resetConversation();
+    
+    for (let i = 0; i < messages.length; i++) {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second between messages
+        
+        document.getElementById('messageInput').value = messages[i];
+        sendMessage();
+        
+        // Wait for response
+        await new Promise(resolve => setTimeout(resolve, 1500));
+    }
+
+    setTimeout(() => {
+        alert('Quick test completed! Check the Appointments page to see the booking.');
+    }, 2000);
+}
+
+// Allow Enter key to send message
+document.getElementById('messageInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+});
+</script>
+{% endblock %}
+

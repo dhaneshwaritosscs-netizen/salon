@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Pretty Saloon - Management System{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-link:hover { background-color: #3b82f6; color: white; }
+        .sidebar-link.active { background-color: #3b82f6; color: white; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    {% if current_user.is_authenticated %}
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-gray-800 text-white">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold text-center">Pretty Saloon</h1>
+                <p class="text-sm text-gray-400 text-center mt-1">Management System</p>
+            </div>
+            <nav class="mt-8">
+                <a href="{{ url_for('dashboard') }}" class="sidebar-link block px-6 py-3 {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                    <i class="fas fa-chart-line mr-3"></i> Dashboard
+                </a>
+                <a href="{{ url_for('customers') }}" class="sidebar-link block px-6 py-3 {% if request.endpoint in ['customers', 'add_customer', 'customer_detail'] %}active{% endif %}">
+                    <i class="fas fa-users mr-3"></i> Customers
+                </a>
+                <a href="{{ url_for('appointments') }}" class="sidebar-link block px-6 py-3 {% if request.endpoint in ['appointments', 'add_appointment'] %}active{% endif %}">
+                    <i class="fas fa-calendar-alt mr-3"></i> Appointments
+                </a>
+                <a href="{{ url_for('staff') }}" class="sidebar-link block px-6 py-3 {% if request.endpoint in ['staff', 'add_staff'] %}active{% endif %}">
+                    <i class="fas fa-user-tie mr-3"></i> Staff
+                </a>
+                <a href="{{ url_for('services') }}" class="sidebar-link block px-6 py-3 {% if request.endpoint in ['services', 'add_service'] %}active{% endif %}">
+                    <i class="fas fa-spa mr-3"></i> Services
+                </a>
+                <a href="{{ url_for('finance') }}" class="sidebar-link block px-6 py-3 {% if request.endpoint in ['finance', 'download_invoice', 'download_report'] %}active{% endif %}">
+                    <i class="fas fa-money-bill-wave mr-3"></i> Finance
+                </a>
+                <a href="{{ url_for('promotions') }}" class="sidebar-link block px-6 py-3 {% if request.endpoint in ['promotions', 'add_promotion'] %}active{% endif %}">
+                    <i class="fas fa-bullhorn mr-3"></i> Promotions
+                </a>
+                <a href="{{ url_for('whatsapp_test_page') }}" class="sidebar-link block px-6 py-3 {% if request.endpoint == 'whatsapp_test_page' %}active{% endif %}">
+                    <i class="fab fa-whatsapp mr-3"></i> WhatsApp Test
+                </a>
+                {% if current_user.role == 'admin' %}
+                <a href="{{ url_for('settings') }}" class="sidebar-link block px-6 py-3 {% if request.endpoint == 'settings' %}active{% endif %}">
+                    <i class="fas fa-cog mr-3"></i> Settings
+                </a>
+                {% endif %}
+            </nav>
+            <div class="absolute bottom-0 w-64 p-6">
+                <div class="bg-gray-700 p-4 rounded">
+                    <p class="text-sm">{{ current_user.username }}</p>
+                    <p class="text-xs text-gray-400">{{ current_user.role|title }}</p>
+                    <a href="{{ url_for('logout') }}" class="text-sm text-red-400 hover:text-red-300 mt-2 block">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 overflow-auto">
+            <div class="p-8">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="mb-4 p-4 rounded {% if category == 'error' %}bg-red-100 text-red-700{% elif category == 'success' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+    {% endif %}
+                
+                {% block content %}{% endblock %}
+                
+    {% if current_user.is_authenticated %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
