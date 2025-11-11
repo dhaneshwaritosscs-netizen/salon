@@ -3,7 +3,6 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from werkzeug.security import generate_password_hash
 from datetime import datetime, timedelta
 import os
-from sqlalchemy import text
 from config import Config
 from models import db, User, Customer, Service, Staff, Appointment, AppointmentService, Transaction, LoyaltyHistory, Attendance, Promotion, CampaignStats, WhatsAppConversation
 from forms import LoginForm, CustomerForm, AppointmentForm, StaffForm, ServiceForm, PromotionForm
@@ -19,27 +18,6 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message = 'Please log in to access this page.'
 
-def has_column(table_name, column_name):
-    """Check if a column exists on a SQLite table (compatible with SQLAlchemy 2.x Row)."""
-    try:
-        result = db.session.execute(text(f"PRAGMA table_info({table_name});"))
-        for row in result:
-            col_name = None
-            # SQLAlchemy Row supports _mapping; fallback to tuple indexing
-            mapping = getattr(row, '_mapping', None)
-            if mapping and 'name' in mapping:
-                col_name = mapping['name']
-            else:
-                try:
-                    col_name = row[1]
-                except Exception:
-                    col_name = None
-            if col_name == column_name:
-                return True
-    except Exception:
-        pass
-    return False
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -47,35 +25,12 @@ def load_user(user_id):
 def init_db():
     with app.app_context():
         db.create_all()
-        # Ensure 'is_archived' column exists for customers (lightweight migration for SQLite)
-        try:
-            result = db.session.execute(text("PRAGMA table_info(customers);"))
-            columns = [row[1] for row in result]
-            if 'is_archived' not in columns:
-                db.session.execute(text("ALTER TABLE customers ADD COLUMN is_archived BOOLEAN DEFAULT 0;"))
-                db.session.commit()
-                print("Added is_archived column to customers table")
-        except Exception as e:
-            db.session.rollback()
-            print(f"Migration error (may be OK if column exists): {e}")
         # Create default admin user if not exists
         if not User.query.filter_by(username='admin').first():
             admin = User(username='admin', email='admin@salon.com', role='admin')
             admin.set_password('admin123')
             db.session.add(admin)
             db.session.commit()
-
-# Ensure migration runs before any requests
-@app.before_request
-def ensure_migration():
-    """Ensure database schema is up to date before handling requests"""
-    try:
-        # Check if is_archived column exists
-        if not has_column('customers', 'is_archived'):
-            db.session.execute(text("ALTER TABLE customers ADD COLUMN is_archived BOOLEAN DEFAULT 0;"))
-            db.session.commit()
-    except Exception:
-        db.session.rollback()
 
 # Ensure DB is initialized when module is imported (Flask 3 removed before_first_request)
 init_db()

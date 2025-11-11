@@ -1,9 +1,28 @@
 import os
 from datetime import timedelta
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key-change-in-production'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///salon.db'
+    # Database configuration (MySQL only)
+    _database_url = os.environ.get('DATABASE_URL')
+    if not _database_url:
+        mysql_host = os.environ.get('MYSQL_HOST')
+        mysql_db = os.environ.get('MYSQL_DB')
+        mysql_user = os.environ.get('MYSQL_USER')
+        mysql_password = os.environ.get('MYSQL_PASSWORD')
+        mysql_port = os.environ.get('MYSQL_PORT') or '3306'
+        if all(value for value in [mysql_host, mysql_db, mysql_user]):
+            mysql_password = mysql_password or ''
+            _database_url = f"mysql+pymysql://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_db}?charset=utf8mb4"
+    if not _database_url or _database_url.startswith('sqlite'):
+        raise RuntimeError(
+            "A MySQL connection string is required. Set DATABASE_URL or MYSQL_* environment variables."
+        )
+    SQLALCHEMY_DATABASE_URI = _database_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
     
