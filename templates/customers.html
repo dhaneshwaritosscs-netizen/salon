@@ -51,9 +51,23 @@
                         <div class="text-sm text-gray-500">{{ customer.email or 'N/A' }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <a href="{{ url_for('customer_detail', id=customer.id) }}" class="text-blue-600 hover:text-blue-900">
-                            <i class="fas fa-eye mr-1"></i>View
-                        </a>
+                        <div class="flex items-center gap-3">
+                            <a href="{{ url_for('customer_detail', id=customer.id) }}" class="text-blue-600 hover:text-blue-900">
+                                <i class="fas fa-eye mr-1"></i>View
+                            </a>
+                            {% if current_user.role in ['admin', 'manager'] %}
+                            <form method="POST" action="{{ url_for('archive_customer', id=customer.id) }}" class="inline" onsubmit="return confirm('Archive this customer? You can restore from Archives.');">
+                                <button type="submit" class="text-yellow-600 hover:text-yellow-800">
+                                    <i class="fas fa-box-archive mr-1"></i>Archive
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ url_for('delete_customer', id=customer.id) }}" class="inline" onsubmit="return confirm('Delete this customer? This cannot be undone.');">
+                                <button type="submit" class="text-red-600 hover:text-red-900">
+                                    <i class="fas fa-trash mr-1"></i>Delete
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}

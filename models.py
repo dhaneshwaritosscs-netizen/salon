@@ -30,6 +30,7 @@ class Customer(db.Model):
     address = db.Column(db.Text)
     loyalty_points = db.Column(db.Integer, default=0)
     total_spent = db.Column(db.Float, default=0.0)
+    is_archived = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

@@ -24,18 +24,6 @@
                     <p class="text-sm text-gray-600">Email</p>
                     <p class="font-semibold">{{ customer.email or 'N/A' }}</p>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-600">Address</p>
-                    <p class="font-semibold">{{ customer.address or 'N/A' }}</p>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-600">Loyalty Points</p>
-                    <p class="font-semibold text-yellow-600">{{ customer.loyalty_points }} pts</p>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-600">Total Spent</p>
-                    <p class="font-semibold text-green-600">₹{{ "%.2f"|format(customer.total_spent) }}</p>
-                </div>
             </div>
         </div>
     </div>

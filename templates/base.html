@@ -39,8 +39,13 @@
                 <a href="{{ url_for('finance') }}" class="sidebar-link block px-6 py-3 {% if request.endpoint in ['finance', 'download_invoice', 'download_report'] %}active{% endif %}">
                     <i class="fas fa-money-bill-wave mr-3"></i> Finance
                 </a>
+                <!-- Promotions menu item commented out as requested
                 <a href="{{ url_for('promotions') }}" class="sidebar-link block px-6 py-3 {% if request.endpoint in ['promotions', 'add_promotion'] %}active{% endif %}">
                     <i class="fas fa-bullhorn mr-3"></i> Promotions
+                </a>
+                -->
+                <a href="{{ url_for('archived_customers') }}" class="sidebar-link block px-6 py-3 {% if request.endpoint == 'archived_customers' %}active{% endif %}">
+                    <i class="fas fa-box-archive mr-3"></i> Archives
                 </a>
                 <a href="{{ url_for('whatsapp_test_page') }}" class="sidebar-link block px-6 py-3 {% if request.endpoint == 'whatsapp_test_page' %}active{% endif %}">
                     <i class="fab fa-whatsapp mr-3"></i> WhatsApp Test

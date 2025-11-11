@@ -18,6 +18,7 @@ class WhatsAppAppointmentHandler:
     STEP_START = 'start'
     STEP_NAME = 'name'
     STEP_MOBILE = 'mobile'
+    STEP_EMAIL = 'email'
     STEP_STAFF = 'staff'
     STEP_DATE = 'date'
     STEP_TIME = 'time'
@@ -125,6 +126,8 @@ class WhatsAppAppointmentHandler:
             return self._handle_name(message_text)
         elif self.conversation.step == self.STEP_MOBILE:
             return self._handle_mobile(message_text)
+        elif self.conversation.step == self.STEP_EMAIL:
+            return self._handle_email(message_text)
         elif self.conversation.step == self.STEP_STAFF:
             return self._handle_staff(message_text)
         elif self.conversation.step == self.STEP_DATE:
@@ -189,10 +192,11 @@ Please provide your *name*:"""
             return msg
         
         self.data['mobile'] = mobile
-        self.conversation.step = self.STEP_STAFF
+        # Ask for email after mobile
+        self.conversation.step = self.STEP_EMAIL
         self._save_data()
         
-        # Check if customer exists, if not create
+        # Check if customer exists, if not create (without email yet)
         customer = Customer.query.filter_by(mobile=mobile).first()
         if not customer:
             customer = Customer(
@@ -204,15 +208,45 @@ Please provide your *name*:"""
         
         self.conversation.customer_id = customer.id
         self._save_data()
-        
+
+        msg = "Mobile number saved ✅\n\nPlease provide your *email address* (optional, send 'skip' to continue):"
+        self._send_message(msg)
+        return msg
+
+    def _handle_email(self, email_input):
+        """Handle email input (optional)"""
+        email_text = email_input.strip()
+        if email_text.lower() in ['skip', 'no', 'na', 'none', '']:
+            email_text = ''
+        else:
+            # Basic email validation
+            if not re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', email_text):
+                msg = "Please enter a valid email address or type 'skip' to continue:"
+                self._send_message(msg)
+                return msg
+
+        self.data['email'] = email_text
+        self.conversation.step = self.STEP_STAFF
+        self._save_data()
+
+        # Update customer's email if provided
+        if self.conversation.customer_id and email_text:
+            try:
+                customer = Customer.query.get(self.conversation.customer_id)
+                if customer:
+                    customer.email = email_text
+                    db.session.commit()
+            except Exception:
+                db.session.rollback()
+
         staff_options = self._format_staff_options()
         if not staff_options:
             msg = "Sorry, no staff members are available at this time."
             self._cancel_conversation()
             self._send_message(msg)
             return msg
-        
-        msg = f"Mobile number: {mobile} ✅\n\nPlease select a staff member:\n\n{staff_options}\n\nSend only the number (e.g., 1)"
+
+        msg = f"Email {'saved' if email_text else 'skipped'} ✅\n\nPlease select a staff member:\n\n{staff_options}\n\nSend only the number (e.g., 1)"
         self._send_message(msg)
         return msg
     
